@@ -12,6 +12,7 @@ from backend.app.services.ast_parsers.java import TreeSitterJavaParser
 from backend.app.services.ast_parsers.python import PythonAstParser
 from backend.app.services.ast_parsers.registry import AstParser, AstParserRegistry
 from backend.app.services.ast_parsers.rust import TreeSitterRustParser
+from backend.app.services.ast_parsers.swift import SwiftAstParser
 
 __all__ = [
     "AstParser",
@@ -28,5 +29,6 @@ __all__ = [
     "TreeSitterJavaScriptParser",
     "TreeSitterCaptureParser",
     "TreeSitterRustParser",
+    "SwiftAstParser",
     "TreeSitterTypeScriptParser",
 ]

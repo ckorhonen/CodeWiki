@@ -26,6 +26,7 @@ class AstParserRegistry:
         from backend.app.services.ast_parsers.java import TreeSitterJavaParser
         from backend.app.services.ast_parsers.python import PythonAstParser
         from backend.app.services.ast_parsers.rust import TreeSitterRustParser
+        from backend.app.services.ast_parsers.swift import SwiftAstParser
 
         registry = cls()
         registry.register(PythonAstParser())
@@ -35,6 +36,7 @@ class AstParserRegistry:
         registry.register(TreeSitterCParser())
         registry.register(TreeSitterCppParser())
         registry.register(TreeSitterCSharpParser())
+        registry.register(SwiftAstParser())
         registry.register(TreeSitterTypeScriptParser("typescript"))
         registry.register(TreeSitterTypeScriptParser("tsx"))
         registry.register(TreeSitterJavaScriptParser("javascript"))

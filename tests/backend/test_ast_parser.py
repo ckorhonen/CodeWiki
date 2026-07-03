@@ -410,6 +410,72 @@ def test_query_parser_extracts_csharp_symbols_imports_methods_and_calls(tmp_path
     assert by_id["User.cs::User.Helper"].type == "method"
 
 
+def test_swift_parser_extracts_symbols_imports_methods_and_calls(tmp_path: Path) -> None:
+    source = tmp_path / "Models" / "GameState.swift"
+    source.parent.mkdir()
+    source.write_text(
+        "\n".join(
+            [
+                "import Foundation",
+                "@testable import GameKit",
+                "",
+                "public protocol Loadable {",
+                "  func load() -> String",
+                "}",
+                "",
+                "public enum Stage {",
+                "  case planetary, stellar",
+                "}",
+                "",
+                "public struct Player: Loadable {",
+                "  let id: UUID",
+                "  var score: Double { ScoreCalculator.value(for: id) }",
+                "",
+                "  /// Load player state",
+                "  public func load(",
+                "    from store: Store",
+                "  ) -> String {",
+                "    let localOnly = Helper()",
+                "    return store.fetch(id)",
+                "  }",
+                "}",
+                "",
+                "extension Player: Codable {",
+                "  func encoded() -> Data {",
+                "    return Encoder().encode(self)",
+                "  }",
+                "}",
+            ]
+        )
+        + "\n"
+    )
+
+    symbols = AstParser(cache_enabled=False).parse_file(source, repo_root=tmp_path)
+    by_id = {symbol.id: symbol for symbol in symbols}
+
+    file_id = "file:Models/GameState.swift"
+    player_id = "Models/GameState.swift::Player"
+    extension_id = "Models/GameState.swift::extension:Player:25"
+
+    assert by_id[file_id].imports == ["Foundation", "GameKit"]
+    assert by_id[file_id].exports == ["Loadable", "Player", "Stage"]
+    assert by_id[file_id].metadata["language_enhancer"] == "swift"
+    assert by_id["Models/GameState.swift::Loadable"].type == "protocol"
+    assert by_id["Models/GameState.swift::Loadable.load"].type == "method"
+    assert by_id["Models/GameState.swift::Stage"].type == "enum"
+    assert by_id["Models/GameState.swift::Stage.planetary"].type == "variable"
+    assert by_id[player_id].type == "class"
+    assert by_id[player_id].bases == ["Loadable"]
+    assert by_id[f"{player_id}.id"].type == "variable"
+    assert by_id[f"{player_id}.score"].calls == ["value"]
+    assert by_id[f"{player_id}.load"].type == "method"
+    assert by_id[f"{player_id}.load"].docstring == "Load player state"
+    assert "fetch" in by_id[f"{player_id}.load"].calls
+    assert f"{player_id}.localOnly" not in by_id
+    assert by_id[extension_id].type == "extension"
+    assert by_id[f"{extension_id}.encoded"].calls == ["Encoder", "encode"]
+
+
 def test_registry_reports_supported_languages() -> None:
     parser = AstParser()
 
@@ -420,6 +486,7 @@ def test_registry_reports_supported_languages() -> None:
     assert "java" in parser.registry.supported_languages()
     assert "python" in parser.registry.supported_languages()
     assert "rust" in parser.registry.supported_languages()
+    assert "swift" in parser.registry.supported_languages()
     assert "typescript" in parser.registry.supported_languages()
 
 

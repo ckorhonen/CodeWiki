@@ -18,6 +18,7 @@ from backend.app.services.ast_parsers import (
     TreeSitterJavaScriptParser,
     TreeSitterRustParser,
     TreeSitterTypeScriptParser,
+    SwiftAstParser,
 )
 from backend.app.services.repo_scanner import ScannedFile
 from backend.app.services.source_file_cache import SourceFileContentProvider
@@ -153,6 +154,7 @@ __all__ = [
     "TreeSitterJavaParser",
     "TreeSitterJavaScriptParser",
     "TreeSitterRustParser",
+    "SwiftAstParser",
     "TreeSitterTypeScriptParser",
     "parse_scanned_files",
 ]
