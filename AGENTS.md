@@ -54,3 +54,11 @@
 - Python 3.12 is required (`make` enforces it).
 - Copy `.env.example` to configure local settings and LLM provider variables.
 - Use `codewiki` CLI for local workflows, e.g. `codewiki analyze .` and `codewiki ask "..."`.
+
+## Execution boundaries and completion
+
+- Use the Makefile's Python 3.12 checks before ambient Python commands; `make install` creates/checks `.venv`. CI also uses Node 20 and `npm --prefix frontend ci`. Preserve `frontend/package-lock.json`. `make build` builds only the frontend; Python packaging invokes a frontend build hook and is a separate check when packaging changes.
+- `make kill` and `make restart` terminate listeners on the configured ports. Check ownership with `make check-ports` and prefer alternate ports; do not kill an unrelated process as a setup shortcut. Local development does not require installing the bundled skill or editing a harness's MCP configuration.
+- Source analysis and Lite Mode can be tested with a disposable repository/index. Wiki generation, embedding, and Q&A may transmit source to an LLM provider; use fixtures/mocks for unit checks and obtain task authorization before sending private code or spending on live provider calls. Keep secrets and stored repository content out of logs.
+- Begin with `git status --short`, preserve unrelated work, and finish authorized changes through the relevant test/lint/typecheck/build gates and repairs. Routine reversible choices can proceed directly; ask only about material missing decisions or external actions. If a dependency, database, or provider prerequisite is blocked, give the exact failure and continue independent work.
+- Prose-only edits need source/link inspection and `git diff --check`; keep the existing `make test` pre-PR requirement visible and report any explicit validation exemption. Close with changed paths, actual check outcomes, and unverified integration behavior. Publishing packages, deployments, shared-database changes, and global skill/MCP installation need explicit authorization.
